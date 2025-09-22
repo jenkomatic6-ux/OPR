@@ -1,32 +1,51 @@
 import requests
 import pprint
 
-url = "https://restcountries.com/v3.1/all?fields=name"
+url = "https://restcountries.com/v3.1/all?fields=name,borders,languages,population,continents"
 odgovor = requests.get(url)
 drzave = odgovor.json()
 
 # 1: Poišči državo z največ sosedi (borders)
 # Namig: Nekatere države so otoki in nimajo ključa "borders"!
-max_sosedi = 0
-drzava_z_najvec_sosedi = None
-dr=[]
-for d in drzave[:5]:
-    dr.append(d.get("name").get("official"))
-print(dr)
+max_sosedi=0
+drzava_z_najvec_sosedi=""
+
+for d in drzave:
+    borders= d.get("borders", [])
+    if len(borders) > max_sosedi:
+        max_sosedi = len(borders)
+        drzava_z_najvec_sosedi = d["name"]["common"]
+
+print(f"Drzava z najvec sosedi je: {drzava_z_najvec_sosedi} ter ima {max_sosedi} sosedov.")
 
 # 2: Poišči države kjer govorijo največ jezikov (languages)
 # Namig: Nekatere države nimajo ključa "languages"
-max_jezikov = 0
-drzava_z_najvec_jezikov = None
-for d in drzave[:5]:
-    if (stevilo_jezikov := len(d.get("languages", {}))) > max_jezikov:
-        max_jezikov, drzava_z_najvec_jezikov = stevilo_jezikov, d["name"]["official"]
+max_jezikov=0
+drzava_z_najvec_jeziki=""
 
-print(drzava_z_najvec_jezikov)
- 
+for d in drzave:
+    languages= d.get("languages",[])
+    if len(languages) > max_jezikov:
+        max_jezikov = len(languages)
+        drzava_z_najvec_jeziki = d["name"]["common"]
+print("Država z največ jezikov:", drzava_z_najvec_jeziki, "število jezikov:", max_jezikov)
 
 # 3: Izračunaj povprečno število prebivalcev (population) po celinah (continents)
 # Namig: Vedno preveri, če je population večji od 0
+celine={}
+st_drzav={}
+
+for d in drzave:
+    pop= d.get("population",0)
+    cont= d.get("continent", ["Unknown"])[0]
+
+    celine[cont]= celine.get(cont,0) + pop
+    st_drzav[cont] = st_drzav.get(cont,0) + 1
+
+    for cont in celine:
+        print(cont,"povprečna populacija: ", celine[cont] / st_drzav[cont])
+
+
 
 # 4: Poišči državo z največ časovnimi pasovi (timezones)
 # Namig: Vsaka država ima vsaj en timezone

@@ -4,7 +4,7 @@ imenik ={
 }
 
 
-#nevarni dostop
+#nevarni dostopx
 print(imenik["Ažbe"])
 if "neznanec" in imenik:
     print(imenik["neznanec"])
